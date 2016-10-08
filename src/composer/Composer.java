@@ -39,27 +39,53 @@ public class Composer implements JMC {
 	
 	public void composeVariation() {
 		String[][] variationChords = themeChords;
-	    //change rhythm? If also, alter the themeChords by employing diatonic substitution.
-		double d = Math.random();
-		if(d < 0.5)
-			variationChords = this.alterChords(themeChords);
+	    //change harmonic structure? If so, alter the themeChords by employing diatonic substitution.
+		//modulate to a minor? If so, call convertToMinorChords.
+		double d = Math.random(); //det. change in harm. str.
+		boolean major = (Math.random() < 0.7); //det. major or minor
+		if(d < 0.7) {
+			if(e < 0.7)
+				variationChords = this.alterChordsInMajorKey(themeChords); //Major
+			else {
+				variationChords = this.convertToMinorChords(themeChords); //minor
+				variationChords = this.alterChordsInMinorKey(variationChords);
+			}
+		}
+		else {
+			if(e < 0.3)
+				variationChords = this.convertToMinorChords(themeChords); //minor
+		}
+		
+		//change meter? If so, reposition the chords.
+		
+		//first note
+		if(major)
+			themePhrase.addNote(new Note());
+		
 		
 		//loop between deciding the following note and rhythmic patterns in between
-		for(int i = 0; i < variationChords.length-1; i++) {
-			
+		for(int i = 0; i < variationChords.length; i++) {
+			for(int j = 0; j < variationChords[0].length; j++) {
+				
+			}
 		}
 		
 		//variation now completed
 	}
 	
 	//decide the following note. Executes immediately after the previous note is composed.
-	public Note decideNextNote(Note previous,int[] chordTones,int tempo) {
+	public Note decideNextNote(Note previous,int[] chordTones,int tempo,boolean major) {
 		//previous = previous note.
 		//chordTones = the chord tones, designated by distance by half steps from tonic upwards
 		
 		ArrayList<Note> options = new ArrayList<Note>(); //list of possible options for the next note
 		
-		int[] diatonicIntervals = {0,2,4,5,7,9,11}; //C Major scale: distance from each note to tonic in half steps
+		int[] diatonicIntervals = {0,2,4,5,7,9,11}; //distance from each note to tonic in half steps [C Major scale - default]
+		if(!major) { //A minor scale - change some numbers
+			diatonicIntervals[2] = 3;
+			diatonicIntervals[5] = 8;
+			diatonicIntervals[6] = 10;
+		}
 	    
 		ArrayList<Integer> matchingIndices = new ArrayList<Integer>(); //stores values of diatonicIntervals whose note names match those specified in chordTones
 		for(int i = 0; i < diatonicIntervals.length; i++) {
@@ -111,8 +137,8 @@ public class Composer implements JMC {
 		return options.get(f);
 	}
 	
-	//alter chords in variation using diatonic substitution.
-	public String[][] alterChords(String[][] themePitches) {
+	//alter chords in variation using diatonic substitution. (for Major keys)
+	public String[][] alterChordsInMajorKey(String[][] themePitches) { //for C Major.
 		//IV can be subst. with ii.
 		//V7 can be subst. with V.
 		//I (not first or last note) can be subst. iii or vi.
@@ -124,18 +150,18 @@ public class Composer implements JMC {
 				if(!thisChord.equals("N")) { //if there is in fact a chord change
 					double d = Math.random();
 					if(thisChord.equals("IV")) {
-						if(d < 0.5)
+						if(d < 0.4)
 							varChords[i][j] = "ii";
 					}
 					else if(thisChord.equals("V7")) {
-						if(d < 0.5)
+						if(d < 0.4)
 							varChords[i][j] = "V";
 					}
 					else if(thisChord.equals("I")) {
 						if(!(i == 0 && j == 0) && !(i == themePitches.length-1 && j == themePitches[0].length-1)) { //does not apply to first and last note
-							if(d < 0.333)
+							if(d < 0.3)
 								varChords[i][j] = "iii";
-							else if(d < 0.666)
+							else if(d < 0.6)
 								varChords[i][j] = "vi";
 						}
 					}
@@ -146,10 +172,72 @@ public class Composer implements JMC {
 		return varChords;
 	}
 	
-	//determine rhythmic patterns between chord changes
-	//public String chooseRhythms() {
+	//convert chords to a minor key
+	public String[][] convertToMinorChords(String[][] themePitches) { //for A minor.
+		//Mandatory conversions: I to i, IV to iv, and V7 remains the same.
+		//from there:
+		//i to vi (not first/last note)
+		//iv to dim ii or VI
+		//V7 to V or dim vii
+		String[][] varChords = themePitches;
 		
-	//}
+		for(int i = 0; i < themePitches.length; i++) {
+			for(int j = 0; j < themePitches[0].length; j++) {
+				String thisChord = themePitches[i][j];
+				
+				//mandatory conversions
+				if(thisChord.equals("I"))
+					varChords[i][j] = "i";
+				else if(thisChord.equals("IV"))
+					varChords[i][j] = "iv";
+			}
+		}
+		
+		return varChords;
+	}
+	
+	//alter chords using diatonic substitution (with minor keys)
+	public String[][] alterChordsInMinorKey(String[][] converted) {
+		//precondition: converted is a double array of chords that had just underwent the convertToMinorChords method.
+		
+        String[][] varChords = converted;
+		
+		for(int i = 0; i < converted.length; i++) {
+			for(int j = 0; j < converted[0].length; j++) {
+				String thisChord = converted[i][j];
+
+				//substitutions
+				if(!thisChord.equals("N")) { //if there is in fact a chord change
+					double d = Math.random();
+					if(thisChord.equals("i")) {
+						if(!(i == 0 && j == 0) && !(i == converted.length-1 && j == converted[0].length-1)) { //does not apply to first and last note
+							if(d < 0.4)
+								varChords[i][j] = "VI";
+						}
+					}
+					else if(thisChord.equals("iv")) {
+						if(d < 0.3)
+							varChords[i][j] = "dim ii";
+						else if(d < 0.6)
+							varChords[i][j] = "VI";
+					}
+					else if(thisChord.equals("V7")) {
+						if(d < 0.3)
+							varChords[i][j] = "V";
+						else if(d < 0.6)
+							varChords[i][j] = "dim vii";
+					}
+				}
+			}
+		}
+        return varChords;
+	}
+	
+	//determine rhythmic patterns between chord changes
+	public String chooseRhythms(int interval,int length) {
+		
+		
+	}
 	
 	/*
 	public static void main(String[] args){
