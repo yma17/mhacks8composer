@@ -42,7 +42,7 @@ public class Composer implements JMC {
 	    //change rhythm? If also, alter the themeChords by employing diatonic substitution.
 		double d = Math.random();
 		if(d < 0.5)
-			//variationChords = this.alterChords(themeChords);
+			variationChords = this.alterChords(themeChords);
 		
 		//loop between deciding the following note and rhythmic patterns in between
 		for(int i = 0; i < variationChords.length-1; i++) {
@@ -111,10 +111,40 @@ public class Composer implements JMC {
 		return options.get(f);
 	}
 	
-	//alter chords in variation
-	//public String[][] alterChords(String[][] themePitches) {
-	
-	//}
+	//alter chords in variation using diatonic substitution.
+	public String[][] alterChords(String[][] themePitches) {
+		//IV can be subst. with ii.
+		//V7 can be subst. with V.
+		//I (not first or last note) can be subst. iii or vi.
+		String[][] varChords = themePitches;
+		
+		for(int i = 0; i < themePitches.length; i++) {
+			for(int j = 0; j < themePitches[0].length; j++) {
+				String thisChord = themePitches[i][j];
+				if(!thisChord.equals("N")) { //if there is in fact a chord change
+					double d = Math.random();
+					if(thisChord.equals("IV")) {
+						if(d < 0.5)
+							varChords[i][j] = "ii";
+					}
+					else if(thisChord.equals("V7")) {
+						if(d < 0.5)
+							varChords[i][j] = "V";
+					}
+					else if(thisChord.equals("I")) {
+						if(!(i == 0 && j == 0) && !(i == themePitches.length-1 && j == themePitches[0].length-1)) { //does not apply to first and last note
+							if(d < 0.333)
+								varChords[i][j] = "iii";
+							else if(d < 0.666)
+								varChords[i][j] = "vi";
+						}
+					}
+				}
+			}
+		}
+		
+		return varChords;
+	}
 	
 	//determine rhythmic patterns between chord changes
 	//public String chooseRhythms() {
@@ -154,4 +184,5 @@ public class Composer implements JMC {
 
 		}
 	 */
+	public String[][] getThemeChords() { return themeChords; };
 }

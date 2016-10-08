@@ -18,12 +18,13 @@ public class ComposerTester implements JMC {
 		*/
 		
 		Composer c = new Composer();
-		Note prev = new Note(C4,1.0);
-		int[] chordTones = {2,7,11};
-		int tempo = 60;
-		Note next = c.decideNextNote(prev, chordTones, tempo);
-		System.out.println(next.getNote());
-		System.out.println(next.getPitch());
+		String[][] altered = c.alterChords(c.getThemeChords());
+		for(int i = 0; i < altered.length; i++) {
+			for(int j = 0; j < altered[0].length; j++) {
+				System.out.print(altered[i][j] + " ");
+			}
+			System.out.print("\n");
+		}
 	}
 
 }
