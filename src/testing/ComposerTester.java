@@ -21,8 +21,9 @@ public class ComposerTester implements JMC {
 		Composer c = new Composer();
 		Chord[] altered = c.convertToMinorChords(c.getThemeChords());
 		altered = c.alterChordsInMinorKey(altered);
+		altered = c.redistributeLengths(c.getThemeChords(),3);
 		for(int i = 0; i < altered.length; i++) {
-			System.out.print(altered[i].getName() + "\n");
+			System.out.print(altered[i].getLength() + "\n");
 		}
 	}
 

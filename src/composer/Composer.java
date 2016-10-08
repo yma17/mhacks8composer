@@ -70,6 +70,11 @@ public class Composer implements JMC {
 		}
 		
 		//change meter? If so, reposition the chords.
+		double e = Math.random();
+		if(d < 0.25) // to 2/4
+			variationChords = this.redistributeLengths(themeChords, 2);
+		else if(d < 0.5) //to 3/4
+			variationChords = this.redistributeLengths(themeChords, 3);
 		
 		//first note
 		if(major)
@@ -151,7 +156,50 @@ public class Composer implements JMC {
 	}
 	
 	//reposition, redistribute lengths of chords to fit a new meter
-	//public 
+	public Chord[] redistributeLengths(Chord[] original,int newBPM) {
+		Chord[] redistributed = original;
+		
+		for(int i = 0; i < original.length; i += 2) {
+			//precondition: firstLength+secondLength = 4, original.size() % 2 = 0.
+			double firstLength = original[i].getLength();
+			double secondLength = original[i+1].getLength();
+			double d = Math.random();
+			if(newBPM == 2) {
+				if(d < 0.25) {
+					firstLength = 0.5;
+					secondLength = 1.5;
+				}
+				else if(d < 0.50) {
+					firstLength = 1.5;
+					secondLength = 0.5;
+				}
+				else {
+					firstLength = 1;
+					secondLength = 1;
+				}
+			}
+			else { //newBPM == 3
+				if(d < 0.4) {
+					firstLength = 1;
+					secondLength = 2;
+				}
+				else if(d < 0.8) {
+					firstLength = 2;
+					secondLength = 1;
+				}
+				else {
+					firstLength = 1.5;
+					secondLength = 1.5;
+				}
+			}
+			
+			//alter the lengths of the two chords
+			original[i].setLength(firstLength);
+			original[i+1].setLength(secondLength);
+		}
+		
+		return redistributed;
+	}
 	
 	//alter chords in variation using diatonic substitution. (for Major keys)
 	public Chord[] alterChordsInMajorKey(Chord[] themePitches) { //for C Major.
