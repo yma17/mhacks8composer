@@ -6,7 +6,12 @@ import jm.util.Play;
 
 public class SoundPlayer implements JMC {
 	public static void main(String[] args) {
-		Phrase phrase = new Phrase(0.0)
-        Play.midi(new Note(C4, QN));
+		Phrase phrase = new Phrase(0.0);
+		int[] pitches = {C4,D4,E4,F4,G4};
+		double[] rhythms = {1.0,2.0,3.0,4.0,5.0};
+		phrase.addNoteList(pitches, rhythms);
+		phrase.setTempo(108);
+		
+        Play.midi(phrase);
     }
 }
