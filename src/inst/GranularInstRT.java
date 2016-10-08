@@ -11,6 +11,8 @@
  * Please keep these two files identical 
  * except for that one difference!
  */
+package inst;
+
 
 import jm.audio.io.*;
 import jm.audio.Instrument;

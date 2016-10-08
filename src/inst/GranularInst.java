@@ -5,6 +5,8 @@
  * Designed to function with jMusic
  * by Andrew Brown and Andrew Sorenson
  */
+package inst;
+
 
 import jm.audio.io.*;
 import jm.audio.Instrument;

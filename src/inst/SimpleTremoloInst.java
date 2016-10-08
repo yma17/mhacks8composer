@@ -1,3 +1,6 @@
+package inst;
+
+
 import jm.audio.io.*;
 import jm.audio.synth.*;
 import jm.music.data.Note;

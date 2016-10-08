@@ -5,6 +5,8 @@
 // Author:               Andrew Brown
 // Environment:          JDK1.1
 //==========================================================
+package inst;
+
 import jm.audio.io.*;
 import jm.audio.synth.*;
 import jm.audio.Instrument;

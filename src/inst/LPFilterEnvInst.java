@@ -1,3 +1,6 @@
+package inst;
+
+
 import jm.audio.Instrument;
 import jm.audio.io.*;
 import jm.audio.synth.*;

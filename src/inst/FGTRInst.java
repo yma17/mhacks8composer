@@ -3,6 +3,7 @@
  * Author: Timothy Opie
  * Created: Wed Nov 12 16:59:02 EST 2003
  */
+package inst;
 
 import jm.audio.io.*;
 import jm.audio.Instrument;
