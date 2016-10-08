@@ -42,7 +42,7 @@ public class Composer implements JMC {
 	    //change rhythm? If also, alter the themeChords by employing diatonic substitution.
 		double d = Math.random();
 		if(d < 0.5)
-			variationChords = this.alterChords(themeChords);
+			//variationChords = this.alterChords(themeChords);
 		
 		//loop between deciding the following note and rhythmic patterns in between
 		for(int i = 0; i < variationChords.length-1; i++) {
@@ -53,19 +53,73 @@ public class Composer implements JMC {
 	}
 	
 	//decide the following note. Executes immediately after the previous note is composed.
-	public int decideNextNote(int previousPitch) {
+	public Note decideNextNote(Note previous,int[] chordTones,int tempo) {
+		//previous = previous note.
+		//chordTones = the chord tones, designated by distance by half steps from tonic upwards
 		
+		ArrayList<Note> options = new ArrayList<Note>(); //list of possible options for the next note
+		
+		int[] diatonicIntervals = {0,2,4,5,7,9,11}; //C Major scale: distance from each note to tonic in half steps
+	    
+		ArrayList<Integer> matchingIndices = new ArrayList<Integer>(); //stores values of diatonicIntervals whose note names match those specified in chordTones
+		for(int i = 0; i < diatonicIntervals.length; i++) {
+			for(int j = 0; j < chordTones.length; j++) {
+				if(diatonicIntervals[i] == chordTones[j])
+					matchingIndices.add(diatonicIntervals[i]);
+			}
+		}
+		
+		for(int i = previous.getPitch() - 24; i <= previous.getPitch() + 24; i += 12) { //add to options all chord tones from two octaves below the previous pitch to two octaves above.
+			for(Integer integer : matchingIndices) {
+				//length of note 1.0 to satisfy constructor. Can alter later as needed.
+				Note proposed = new Note(i + integer,1.0);
+				options.add(proposed);
+			}
+		}
+		
+		for(int i = 0; i < options.size(); i++) { 
+			//next step: the "filter". 
+			//Notes that lead to larger intervals are more likely to be removed, to reduce stress and awkwardness in the music.
+
+			double d; //d will be a value between 0 and 1
+			if(tempo >= 108) { //faster sections
+				//downward facing qudratic function (parabola)
+				//stronger preference towards smaller intervals
+				d = -(Math.pow(previous.getPitch()-options.get(i).getPitch(),2))/200 + 1;
+			}
+			else { //tempo < 108 - slower sections
+				//downward facing absolute value function
+				//linear correlation between d and size of interval
+				d = -(Math.abs(previous.getPitch()-options.get(i).getPitch())/14.5) + 1;
+			}
+			
+			double e = Math.random();
+			
+			//executes if options.size() = 1, to ensure that there is a single note to compose in the next step
+			if(options.size() == 1) {
+				return options.get(0);
+			}
+			
+			if(d <= e) { //compare d to e
+				options.remove(options.get(i));
+				i--;
+			}
+		}
+		
+		//randomly picks a note from the remaining list.
+		int f = (int)(Math.random()*options.size());
+		return options.get(f);
 	}
 	
 	//alter chords in variation
-	public String[][] alterChords(String[][] themePitches) {
+	//public String[][] alterChords(String[][] themePitches) {
 	
-	}
+	//}
 	
 	//determine rhythmic patterns between chord changes
-	public String chooseRhythms() {
+	//public String chooseRhythms() {
 		
-	}
+	//}
 	
 	/*
 	public static void main(String[] args){
