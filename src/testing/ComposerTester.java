@@ -4,6 +4,7 @@ import jm.JMC;
 import jm.music.data.*;
 import jm.util.*;
 import jm.audio.*;
+import composer.Chord;
 import composer.Composer;
 import inst.SawtoothInst;
 
@@ -18,12 +19,10 @@ public class ComposerTester implements JMC {
 		*/
 		
 		Composer c = new Composer();
-		String[][] altered = c.alterChords(c.getThemeChords());
+		Chord[] altered = c.convertToMinorChords(c.getThemeChords());
+		altered = c.alterChordsInMinorKey(altered);
 		for(int i = 0; i < altered.length; i++) {
-			for(int j = 0; j < altered[0].length; j++) {
-				System.out.print(altered[i][j] + " ");
-			}
-			System.out.print("\n");
+			System.out.print(altered[i].getName() + "\n");
 		}
 	}
 
