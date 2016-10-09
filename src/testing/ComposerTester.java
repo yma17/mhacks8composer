@@ -18,6 +18,7 @@ public class ComposerTester implements JMC {
 		Write.au(score, inst);
 		*/
 		
+		/*
 		Composer c = new Composer();
 		Chord[] altered = c.convertToMinorChords(c.getThemeChords());
 		altered = c.alterChordsInMinorKey(altered);
@@ -25,6 +26,9 @@ public class ComposerTester implements JMC {
 		for(int i = 0; i < altered.length; i++) {
 			System.out.print(altered[i].getLength() + "\n");
 		}
+		*/
+		
+		
 	}
 
 }

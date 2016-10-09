@@ -36,7 +36,7 @@ public class Composer implements JMC {
 			
 	//variables rel. to variation of the original theme
 	public Part clarinetPart = new Part("Clarinet");
-	public Phrase themePhrase = new Phrase(0.0);
+	public Phrase varPhrase = new Phrase(0.0);
 	public Score score = new Score(clarinetPart,"Variation",108);
 	
 	
@@ -47,7 +47,7 @@ public class Composer implements JMC {
 		theme.addNoteList(themePitches, rhythmPitches);
 		
 		//code to begin building variation
-		clarinetPart.add(themePhrase);	
+		clarinetPart.add(varPhrase);	
 	}
 	
 	public void composeVariation() {
@@ -76,24 +76,115 @@ public class Composer implements JMC {
 		else if(d < 0.5) //to 3/4
 			variationChords = this.redistributeLengths(themeChords, 3);
 		
-		//first note
-		if(major)
-			themePhrase.addNote(new Note());
+		//change tempo?
+		double f = Math.random();
+		if(d < 0.3) //slow down
+			varPhrase.setTempo(60); //to Adagio
+		else if(d < 0.6) //speed up
+			varPhrase.setTempo(132); //to Allegro
 		
+		//compose from first note to first chord change
+		Chord firstChord = variationChords[0];
+		Chord secondChord = variationChords[1];
+		Note first = this.decideFirstNote(major);
+		Note second = this.decideNextNote(first, this.getChordTones(secondChord.getName(), major), varPhrase.getTempo(), major);
 		
 		//loop between deciding the following note and rhythmic patterns in between
-		for(int i = 0; i < variationChords.length; i++) {
-			for(int j = 0; j < variationChords[0].length; j++) {
-				
-			}
+		for(int i = 1; i < variationChords.length-1; i++) {
+			Chord former = variationChords[i];
+			Chord latter = variationChords[i+1];
 		}
 		
-		//variation now completed
+		//code to be completed
+	}
+	
+	public int[] getChordTones(String chordName,boolean major) {
+		if(chordName.equals("V7")) {
+			int[] chordTones = {2,5,7,11};
+			return chordTones;
+		}
+		else if(chordName.equals("V")) {
+			int[] chordTones = {2,7,11};
+			return chordTones;
+		}
+		else if(chordName.equals("vi")) {
+			int[] chordTones = {0,4,9};
+			return chordTones;
+		}
+		
+		if(major) {
+			if(chordName.equals("I")) {
+				int[] chordTones = {0,4,7};
+				return chordTones;
+			}
+			else if(chordName.equals("IV")) {
+				int[] chordTones = {0,5,9};
+				return chordTones;
+			}
+			else if(chordName.equals("iii")) {
+				int[] chordTones = {4,7,11};
+				return chordTones;
+			}
+			else { //chordName.equals("ii"))
+				int[] chordTones = {2,5,9};
+				return chordTones;
+			}
+		}
+		else { //minor
+            if(chordName.equals("i")) {
+            	int[] chordTones = {0,3,7};
+            	return chordTones;
+            }
+            else if(chordName.equals("iv")) {
+				int[] chordTones = {0,5,8};
+				return chordTones;
+			}
+            else if(chordName.equals("VI")) {
+				int[] chordTones = {0,3,8};
+				return chordTones;
+			}
+            else if(chordName.equals("dim ii")) {
+				int[] chordTones = {2,5,8};
+				return chordTones;
+			}
+            else { //chordName.equals("dim vii"))
+				int[] chordTones = {2,5,11};
+				return chordTones;
+			}
+		}
+	}
+
+	//decide first note.
+	public Note decideFirstNote(boolean major) {
+		ArrayList<Note> options = new ArrayList<Note>();
+		//for now, rhythm is 1.0 to satisfy constructor. Will alter later.
+		if(major) {
+			options.add(new Note(C3,1.0));
+			options.add(new Note(E3,1.0));
+			options.add(new Note(G3,1.0));
+			options.add(new Note(C4,1.0));
+			options.add(new Note(E4,1.0));
+			options.add(new Note(G4,1.0));
+			options.add(new Note(C5,1.0));
+		}
+		else { //minor
+			options.add(new Note(A2,1.0));
+			options.add(new Note(C3,1.0));
+			options.add(new Note(E3,1.0));
+			options.add(new Note(A3,1.0));
+			options.add(new Note(C4,1.0));
+			options.add(new Note(E4,1.0));
+			options.add(new Note(A4,1.0));
+		}
+		
+		//randomly picks a note from the list.
+		int i = (int)(Math.random()*options.size());
+		return options.get(i);
 	}
 	
 	//decide the following note. Executes immediately after the previous note is composed.
-	public Note decideNextNote(Note previous,int[] chordTones,int tempo,boolean major) {
-		//previous = previous note.
+	public Note decideNextNote(Note previous,int[] chordTones,double tempo,boolean major) {
+		//previous = previous note. if first note is being composed, previous will be null.
 		//chordTones = the chord tones, designated by distance by half steps from tonic upwards
 		
 		ArrayList<Note> options = new ArrayList<Note>(); //list of possible options for the next note
@@ -136,14 +227,14 @@ public class Composer implements JMC {
 				//linear correlation between d and size of interval
 				d = -(Math.abs(previous.getPitch()-options.get(i).getPitch())/14.5) + 1;
 			}
-			
+				
 			double e = Math.random();
-			
+				
 			//executes if options.size() = 1, to ensure that there is a single note to compose in the next step
 			if(options.size() == 1) {
 				return options.get(0);
 			}
-			
+				
 			if(d <= e) { //compare d to e
 				options.remove(options.get(i));
 				i--;
@@ -292,10 +383,38 @@ public class Composer implements JMC {
 	}
 	
 	//determine rhythmic patterns between chord changes
-	//public String chooseRhythms(int interval,int length) {
+	public void composeRhythms(Note first,Note second,double length) {
+		//interval: difference between two notes in half steps.
+		//length: how many beats?
 		
+		if(length)
+		/*
+
+		(1.5)
+		dotted quarter
+		three eighth notes
+		two sixteenths, one eighth, two sixteenths
+
+		rest + quarter, two eighths, three triplets, four sixteenths, etc. (+vice versa)
+
+		(2)
+
+		combination of any two listed under (1)
+		half note
+		two quarter notes
+		four eighth notes
+		eight sixteenth notes
+		dotted quarter and eighth (+vice versa)
+
+		(3)
+
+		combination of any three listed under (1)
+		combination of any two listed under (1.5)
+		dotted half
+		half note + quarter note (+vice versa)
+		*/
 		
-	//}
+	}
 	
 	/*
 	public static void main(String[] args){
@@ -330,5 +449,108 @@ public class Composer implements JMC {
 
 		}
 	 */
+	
+	//composes the rhythm between two chords if length is 1 beat.
+	public void composeOneBeat(Note first,Note second) {
+		//there exist many options for rhythms, all indicated by the comments.
+		//note: all notes below indicated are set initially to C4, as the pitch-deciding algorithm has not been implemented yet.
+		double d = Math.random();
+		if(d < 0.2) { //quarter note
+			varPhrase.add(first);
+		}
+		else if(d < 0.35) { //two eighth notes
+			first.setRhythmValue(0.5);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.5));
+		}
+		else if(d < 0.425) { //three triplets
+			first.setRhythmValue(1.0/3.0);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,1.0/3.0));
+			varPhrase.add(new Note(C4,1.0/3.0));
+		}
+		else if(d < 0.5) { //four sixteenths
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Note(C4,0.25));
+		}
+		else if(d < 0.575) { //eighth + two sixteenths
+			first.setRhythmValue(0.5);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Note(C4,0.25));
+		}
+		else if(d < 0.65) { //two sixteenths + eighth
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Note(C4,0.5));
+		}
+		else if(d < 0.725) { //dotted eighth + sixteenth
+			first.setRhythmValue(0.75);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+		}
+		else if(d < 0.8) { //vice versa
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.75));
+		}
+		else if(d < 0.825) { //rest + eighth note
+			varPhrase.add(new Rest(0.5));
+			first.setRhythmValue(0.5);
+			varPhrase.add(first);
+		}
+		else if(d < 0.85) { //vice versa
+			first.setRhythmValue(0.5);
+			varPhrase.add(first);
+			varPhrase.add(new Rest(0.5));
+		}
+		else if(d < 0.875) { //rest + two sixteenths
+			varPhrase.add(new Rest(0.5));
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+		}
+		else if(d < 0.9) { //vice versa
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Rest(0.5));
+		}
+		else if(d < 0.925) { //rest + three sixteenths
+			varPhrase.add(new Rest(0.25));
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Note(C4,0.25));
+		}
+		else if(d < 0.95) { //vice versa
+			first.setRhythmValue(0.25);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Note(C4,0.25));
+			varPhrase.add(new Rest(0.25));
+		}
+		else if(d < 0.975) { //rest + two triplets
+			varPhrase.add(new Rest(1.0/3.0));
+			first.setRhythmValue(1.0/3.0);
+			varPhrase.add(first);
+			varPhrase.add(new Note(C4,1.0/3.0));
+		}
+		else { //rest + dotted eighth
+			varPhrase.add(new Rest(0.25));
+			first.setRhythmValue(0.75);
+			varPhrase.add(first);
+		}
+	}
+	
+	//composes the rhythm between two chords if length is 1 1/2 beats.
+	public void composeOneAndHalfBeat(int interval) {
+		//insert code here
+	}
+	
 	public Chord[] getThemeChords() { return themeChords; };
 }
